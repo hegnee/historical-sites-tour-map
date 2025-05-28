@@ -1,0 +1,133 @@
+syntax = "v1"
+
+info (
+	title:   "Site Service API"
+	desc:    "API for managing historical sites and related information"
+	author:  "Jules"
+	email:   "jules@example.com"
+	version: "1.0"
+)
+
+type Site {
+	Id               string  `json:"id"`
+	Name             string  `json:"name"`
+	Description      string  `json:"description,optional"`
+	Category         string  `json:"category,optional"` // e.g., Museum, Monument, Landmark
+	Region           string  `json:"region,optional"` // Geographical area
+	HistoricalPeriod string  `json:"historicalPeriod,optional"` // e.g., Ming Dynasty, Roman Empire
+	Latitude         float64 `json:"latitude,optional"`
+	Longitude        float64 `json:"longitude,optional"`
+	Address          string  `json:"address,optional"`
+	CreatedAt        int64   `json:"createdAt,optional"`
+	UpdatedAt        int64   `json:"updatedAt,optional"`
+}
+
+type GetSiteByIDReq {
+	SiteID string `path:"siteID"`
+}
+
+type ListSitesReq {
+	Category         string `form:"category,optional"`
+	Region           string `form:"region,optional"`
+	HistoricalPeriod string `form:"historicalPeriod,optional"`
+	Page             int    `form:"page,optional,default=1"`
+	PageSize         int    `form:"pageSize,optional,default=10"`
+}
+
+type ListSitesResp {
+	Sites    []Site `json:"sites"`
+	Total    int64  `json:"total"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"pageSize"`
+}
+
+type SearchSitesReq {
+	Keyword  string `form:"keyword"`
+	Page     int    `form:"page,optional,default=1"`
+	PageSize int    `form:"pageSize,optional,default=10"`
+}
+
+type SearchSitesResp {
+	Sites    []Site `json:"sites"`
+	Total    int64  `json:"total"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"pageSize"`
+}
+
+type Multimedia {
+	Id          string `json:"id"`
+	SiteID      string `json:"siteId"`
+	Type        string `json:"type"` // image, video, audio
+	Url         string `json:"url"`
+	Description string `json:"description,optional"`
+	CreatedAt   int64  `json:"createdAt,optional"`
+	UpdatedAt   int64  `json:"updatedAt,optional"`
+}
+
+type GetSiteMultimediaReq {
+	SiteID string `path:"siteID"`
+}
+
+type GetSiteMultimediaResp {
+	Multimedia []Multimedia `json:"multimedia"`
+}
+
+type DynamicInfo {
+	SiteID       string   `json:"siteId"`
+	OpeningHours string   `json:"openingHours,optional"` // Could be structured JSON string or text
+	TicketPrice  string   `json:"ticketPrice,optional"`
+	Notices      []string `json:"notices,optional"`
+	UpdatedAt    int64    `json:"updatedAt,optional"` // When this dynamic info was last updated
+}
+
+type GetSiteDynamicInfoReq {
+	SiteID string `path:"siteID"`
+}
+
+// For Admin CRUD operations
+type CreateSiteReq {
+	Name             string  `json:"name"`
+	Description      string  `json:"description,optional"`
+	Category         string  `json:"category,optional"`
+	Region           string  `json:"region,optional"`
+	HistoricalPeriod string  `json:"historicalPeriod,optional"`
+	Latitude         float64 `json:"latitude,optional"`
+	Longitude        float64 `json:"longitude,optional"`
+	Address          string  `json:"address,optional"`
+}
+
+type UpdateSiteReq {
+	SiteID           string  `path:"siteID"`
+	Name             string  `json:"name,optional"`
+	Description      string  `json:"description,optional"`
+	Category         string  `json:"category,optional"`
+	Region           string  `json:"region,optional"`
+	HistoricalPeriod string  `json:"historicalPeriod,optional"`
+	Latitude         float64 `json:"latitude,optional"`
+	Longitude        float64 `json:"longitude,optional"`
+	Address          string  `json:"address,optional"`
+}
+
+type DeleteSiteResp {
+	Message string `json:"message"`
+}
+
+@server (
+	group:  admin
+	prefix: /api/v1/admin/sites
+	jwt:    Auth
+)
+service AdminService {
+	@doc "(Admin) Create a new site"
+	@handler CreateSite
+	post / (CreateSiteReq) returns (Site)
+
+	@doc "(Admin) Update an existing site"
+	@handler UpdateSite
+	put /:siteID (UpdateSiteReq) returns (Site)
+
+	@doc "(Admin) Delete a site"
+	@handler DeleteSite
+	delete /:siteID (GetSiteByIDReq) returns (DeleteSiteResp)
+}
+
