@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "./pb";
+
+message SiteInfo {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    string category = 4;
+    string region = 5;
+    string historical_period = 6;
+    double latitude = 7;
+    double longitude = 8;
+    string address = 9;
+    int64 created_at = 10;
+    int64 updated_at = 11;
+}
+
+message MultimediaInfo {
+    string id = 1;
+    string site_id = 2;
+    string type = 3; // e.g., "image", "video", "audio"
+    string url = 4;
+    string description = 5;
+    int64 created_at = 6;
+    int64 updated_at = 7;
+}
+
+message DynamicInfo {
+    string site_id = 1;
+    string opening_hours = 2;
+    string ticket_price = 3;
+    repeated string notices = 4;
+    int64 updated_at = 5;
+}
+
+// GetSiteByID
+message GetSiteByIDReq {
+    string site_id = 1;
+}
+// Uses SiteInfo as response
+
+// ListSites
+message ListSitesReq {
+    string category = 1;
+    string region = 2;
+    string historical_period = 3;
+    int32 page = 4;
+    int32 page_size = 5;
+}
+
+message ListSitesResp {
+    repeated SiteInfo sites = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// SearchSites
+message SearchSitesReq {
+    string keyword = 1;
+    int32 page = 2;
+    int32 page_size = 3;
+}
+
+message SearchSitesResp {
+    repeated SiteInfo sites = 1;
+    int64 total = 2;
+    int32 page = 3;
+    int32 page_size = 4;
+}
+
+// GetSiteMultimedia
+message GetSiteMultimediaReq {
+    string site_id = 1;
+}
+
+message GetSiteMultimediaResp {
+    repeated MultimediaInfo multimedia = 1;
+}
+
+// GetSiteDynamicInfo
+message GetSiteDynamicInfoReq {
+    string site_id = 1;
+}
+// Uses DynamicInfo as response
+
+// CreateSite
+message CreateSiteReq {
+    string name = 1;
+    string description = 2;
+    string category = 3;
+    string region = 4;
+    string historical_period = 5;
+    double latitude = 6;
+    double longitude = 7;
+    string address = 8;
+}
+// Uses SiteInfo as response
+
+// UpdateSite
+message UpdateSiteReq {
+    string site_id = 1;
+    string name = 2;
+    string description = 3;
+    string category = 4;
+    string region = 5;
+    string historical_period = 6;
+    double latitude = 7;
+    double longitude = 8;
+    string address = 9;
+}
+// Uses SiteInfo as response
+
+// DeleteSite
+message DeleteSiteReq {
+    string site_id = 1;
+}
+
+message DeleteSiteResp {
+    string message = 1;
+}
+
+service SiteService {
+    rpc GetSiteByID(GetSiteByIDReq) returns (SiteInfo);
+    rpc ListSites(ListSitesReq) returns (ListSitesResp);
+    rpc SearchSites(SearchSitesReq) returns (SearchSitesResp);
+    rpc GetSiteMultimedia(GetSiteMultimediaReq) returns (GetSiteMultimediaResp);
+    rpc GetSiteDynamicInfo(GetSiteDynamicInfoReq) returns (DynamicInfo);
+    // Admin methods
+    rpc CreateSite(CreateSiteReq) returns (SiteInfo);
+    rpc UpdateSite(UpdateSiteReq) returns (SiteInfo);
+    rpc DeleteSite(DeleteSiteReq) returns (DeleteSiteResp);
+}
